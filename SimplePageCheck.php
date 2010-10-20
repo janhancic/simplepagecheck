@@ -10,16 +10,20 @@ class SimplePageCheck
 		$this->recipientEmail = $RecipientEmail;
 	}
 
-	public function AddCheck ( $Url, $StringToCheck, $IsRegex = false )
+	public function AddCheck ( $Url, $PreCheckUrl, $StringToCheck, $IsRegex = false )
 	{
 		if ( Preg_Match ( "@\b(https?://)(([0-9a-zA-Z_!~*'().&=+$%-]+:)?[0-9a-zA-Z_!~*'().&=+$%-]+\@)?(([0-9]{1,3}\.){3}[0-9]{1,3}|([0-9a-zA-Z_!~*'()-]+\.)*([0-9a-zA-Z][0-9a-zA-Z-]{0,61})?[0-9a-zA-Z]\.[a-zA-Z]{2,6})(:[0-9]{1,4})?((/[0-9a-zA-Z_!~*'().;?:\@&=+$,%#-]+)*/?)@", $Url ) == 0 )
 			throw new InvalidArgumentException ( '$Url "' . $Url . '" is not a valid URL.' );
+
+		if ( $PreCheckUrl !== null && Preg_Match ( "@\b(https?://)(([0-9a-zA-Z_!~*'().&=+$%-]+:)?[0-9a-zA-Z_!~*'().&=+$%-]+\@)?(([0-9]{1,3}\.){3}[0-9]{1,3}|([0-9a-zA-Z_!~*'()-]+\.)*([0-9a-zA-Z][0-9a-zA-Z-]{0,61})?[0-9a-zA-Z]\.[a-zA-Z]{2,6})(:[0-9]{1,4})?((/[0-9a-zA-Z_!~*'().;?:\@&=+$,%#-]+)*/?)@", $PreCheckUrl ) == 0 )
+			throw new InvalidArgumentException ( '$PreCheckUrl "' . $PreCheckUrl . '" is not a valid URL.' );
 
 		if ( Is_Bool ( $IsRegex ) === false )
 			throw new InvalidArgumentException ( '$IsRegex "' . $IsRegex . '" is not a boolean.' );
 
 		$this->checks[] = Array (
 			'url' => $Url,
+			'pre_url' => $PreCheckUrl,
 			'check' => $StringToCheck,
 			'is_regex' => $IsRegex
 		);
@@ -32,19 +36,14 @@ class SimplePageCheck
 
 		foreach ( $this->checks as $key => $check )
 		{
-			if ( $this->urlExists ( $check['url'] ) === false )
-			{
-				$this->sendError ( $check, 'URL not reachable' );
-
-				continue;
-			}
+			if ( $check['pre_url'] !== null )
+				$response = File_Get_Contents ( $check['pre_url'] );
 
 			$response = File_Get_Contents ( $check['url'] );
 
 			if ( $response === false )
 			{
 				$this->sendError ( $check, 'URL not reachable' );
-
 				continue;
 			}
 
@@ -58,8 +57,9 @@ class SimplePageCheck
 	}
 
 	protected function sendError ( $Check, $ErrorMessage )
-	{
+	{return;
 $body = "URL: " . $Check['url'] . "
+Pre check URL: " . ( $Check['pre_url'] === null ? 'n/a' : $Check['pre_url'] ) . "
 Check: " . $Check['check'] . "
 Regex: " . ( $Check['is_regex'] === true ? 'yes' : 'no' ) . "
 
@@ -70,30 +70,6 @@ $ErrorMessage";
 			'SimplePageCheck check error',
 			$body
 		);
-	}
-
-	protected function urlExists ( $Url )
-	{
-		if ( Function_Exists ( 'curl_init' ) === false )
-			return true;
-		else
-		{
-			// from PHP's manual: http://www.php.net/manual/en/function.file-exists.php#85246
-			$handle = CUrl_Init ( $Url );
-			if ( $handle === false )
-				return false;
-
-			CUrl_SetOpt ( $handle, CURLOPT_HEADER, false );
-			CUrl_SetOpt ( $handle, CURLOPT_FAILONERROR, true );
-			CUrl_SetOpt ( $handle, CURLOPT_HTTPHEADER, Array ( "User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.15) Gecko/20080623 Firefox/2.0.0.15" ) );
-			CUrl_SetOpt ( $handle, CURLOPT_NOBODY, true );
-			CUrl_SetOpt ( $handle, CURLOPT_RETURNTRANSFER, false );
-
-			$connectable = CUrl_Exec ( $handle );
-			CUrl_Close ( $handle );
-
-			return $connectable;
-		}
 	}
 }
 
