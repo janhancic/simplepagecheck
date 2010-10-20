@@ -18,6 +18,11 @@ class SimplePageCheck
 			'is_regex' => $IsRegex
 		);
 	}
+
+	public function RunChecks ()
+	{
+		
+	}
 }
 
 ?>
