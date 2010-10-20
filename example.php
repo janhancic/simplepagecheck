@@ -2,8 +2,12 @@
 
 Include ( 'SimplePageCheck.php' );
 
-$spc = new SimplePageCheck ();
+$spc = new SimplePageCheck ( 'your@email.com' );
 
-$spc->AddCheck ( 'http://www.igre123.com/action/Debug/Cache', 'index_games_SortDate_1' );
+$spc->AddCheck ( 'http://www.example.com', null, 'page by typing' );
+$spc->AddCheck ( 'http://www.example.org', null, 'Section 3test.' ); // this will fail
+
+
+$spc->RunChecks ();
 
 ?>
