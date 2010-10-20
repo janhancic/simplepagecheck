@@ -3,6 +3,12 @@
 class SimplePageCheck
 {
 	protected $checks = Array ();
+	protected $recipientEmail = null;
+
+	public function __construct ( $RecipientEmail )
+	{
+		$this->recipientEmail = $RecipientEmail;
+	}
 
 	public function AddCheck ( $Url, $StringToCheck, $IsRegex = false )
 	{
