@@ -57,7 +57,7 @@ class SimplePageCheck
 	}
 
 	protected function sendError ( $Check, $ErrorMessage )
-	{return;
+	{
 $body = "URL: " . $Check['url'] . "
 Pre check URL: " . ( $Check['pre_url'] === null ? 'n/a' : $Check['pre_url'] ) . "
 Check: " . $Check['check'] . "
