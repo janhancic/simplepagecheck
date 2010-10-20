@@ -59,7 +59,17 @@ class SimplePageCheck
 
 	protected function sendError ( $Check, $ErrorMessage )
 	{
-		echo 'error' . "\n";
+$body = "URL: " . $Check['url'] . "
+Check: " . $Check['check'] . "
+Regex: " . ( $Check['is_regex'] === true ? 'yes' : 'no' ) . "
+
+$ErrorMessage";
+
+		Mail (
+			$this->recipientEmail,
+			'SimplePageCheck check error',
+			$body
+		);
 	}
 
 	protected function urlExists ( $Url )
