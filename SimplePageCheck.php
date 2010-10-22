@@ -3,11 +3,17 @@
 class SimplePageCheck
 {
 	protected $checks = Array ();
+	protected $errors = Array ();
 	protected $recipientEmail = null;
+	protected $oneEmailPerError = null;
 
-	public function __construct ( $RecipientEmail )
+	public function __construct ( $RecipientEmail, $OneEmailPerError = true )
 	{
+		if ( Is_Bool ( $OneEmailPerError ) === false )
+			throw new InvalidArgumentException ( '$OneEmailPerError "' . $OneEmailPerError . '" is not a boolean.' );
+
 		$this->recipientEmail = $RecipientEmail;
+		$this->oneEmailPerError = $OneEmailPerError;
 	}
 
 	public function AddCheck ( $Url, $PreCheckUrl, $StringToCheck, $IsRegex = false )
@@ -54,21 +60,37 @@ class SimplePageCheck
 			if ( $checkFound === false )
 				$this->sendError ( $check, 'Check string not found' );
 		}
+
+		if ( $this->oneEmailPerError === true && Count ( $this->errors ) > 0 )
+		{
+			$body = '';
+			foreach ( $this->errors as $key => $error )
+				$body .= $error . "\n\n";
+
+			$this->sendErrorEmail ( $body );
+		}
 	}
 
 	protected function sendError ( $Check, $ErrorMessage )
 	{
-$body = "URL: " . $Check['url'] . "
-Pre check URL: " . ( $Check['pre_url'] === null ? 'n/a' : $Check['pre_url'] ) . "
-Check: " . $Check['check'] . "
-Regex: " . ( $Check['is_regex'] === true ? 'yes' : 'no' ) . "
+		$body = "URL: " . $Check['url'] . "\n";
+		$body .= "Pre check URL: " . ( $Check['pre_url'] === null ? 'n/a' : $Check['pre_url'] ) . "\n";
+		$body .= "Check: " . $Check['check'] . "\n";
+		$body .= "Regex: " . ( $Check['is_regex'] === true ? 'yes' : 'no' ) . "\n\n";
+		$body .= $ErrorMessage;
 
-$ErrorMessage";
+		if ( $this->oneEmailPerError === false )
+			$this->sendErrorEmail ( $body );
+		else
+			$this->errors[] = $body;
+	}
 
+	protected function sendErrorEmail ( $Body )
+	{
 		Mail (
 			$this->recipientEmail,
 			'SimplePageCheck check error',
-			$body
+			$Body
 		);
 	}
 }
