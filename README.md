@@ -8,3 +8,6 @@ I often build a "debug" sub-page on my projects that list various things about t
 
 ## How to use it?
 See "example.php" for usage. It's really simple.
+
+## License
+Licensed under MIT. See [LICENSE.md](https://github.com/janhancic/simplepagecheck/blob/master/LICENSE.md) file for details.
