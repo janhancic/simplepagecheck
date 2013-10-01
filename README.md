@@ -10,4 +10,4 @@ I often build a "debug" sub-page on my projects that list various things about t
 See "example.php" for usage. It's really simple.
 
 ## License
-Licensed under MIT. See [LICENSE.md](https://github.com/janhancic/simplepagecheck/blob/master/LICENSE.md) file for details.
+Licensed under MIT. See [LICENSE.md](https://github.com/janhancic/simplepagecheck/blob/master/LICENSE.MD) file for details.
